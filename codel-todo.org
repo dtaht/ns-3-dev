@@ -1,0 +1,91 @@
+* Various code cleanups for fq_codel
+
+* Generic Issues
+** TODO Correct solution for queues that might not return a packet
+
+Not clear if this problem is generic to the net point-to-point device
+or global.
+
+** TODO Correct solution for tcp initial sequence numbers
+
+** TODO the Ipv4Header and the Ipv6Header objects do not have equivalent functions like getECN. 
+
+* FQ_Codel
+** DONE Fix Incorrect hashing for number of flows
+
+std::size_t
+Fq_CoDelQueue::hash(Ptr<Packet> p)
+arbitrarily constrains the range of queue hashes to 768 instead of m_divisor
+                       & 0x2ff);
+			^^^^^^
+
+created m_flows and % that.
+
+** TODO Fix Incorrect hashing for IPv6 and other protocols
+Linux abstracted all this out into net/core/flow-dissector.c
+
+It also inspects deep enough to get src/dst ports from many
+popular protocols.
+
+Switching to the same jhash will also get rid of a dependency
+on boost.
+
+ns3 Header parsing is weird. Declare the object, see if it exists?
+
+q->PeekHeader(each kind of ip header? tcp, udp, sctp?)
+if header->hasports()?
+
+** TODO fq_codel does not use shared buffer backlog on the codel aqm
+
+That was how we did things prior to running into the horizontal standing queue problem.
+
+
+  if (m_ht[h] == NULL)
+    {
+      NS_LOG_DEBUG ("fq_codel enqueue Create queue " << h);
+      m_ht[h] = new Fq_CoDelSlot ();
+      slot = m_ht[h];
+      slot->q->backlog = &backlog;
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^?
+      slot->h = h;
+    }
+
+
+(and to this day I'm dissatisfied with the solution in linux. We drop a lot more sparse packets now  than I'd like)
+
+** TODO Fq_CoDelQueue::DoEnqueue (Ptr<Packet> p) looks a lot like sfq in initializing queues.
+
+It seems saner to me to initialize once at startup. Don't need a map, either, just a good ole fashioned array...
+
+** TODO fq_codel initializes the perturbation value at instantation time.
+
+It is not swept every so often as in SFQ.
+
+** TODO Add IPv6 support
+** TODO Add ECN support
+
+** DONE Uses a quantum of 4700 by default - switch back to 1500 default
+Fiddling with larger quantums on wifi at the time made some sense.
+but a single MTU or 300 are more commonly used. 
+
+** Add support for codel and fq_codel variants
+
+* SFQ
+** DONE Uses a quantum of 4500 by default - switch back to 1500 default
+** DONE fix speling of peturbation 
+** TODO Change to timed, rather than per-packet perturbation interval as per linux
+** TODO Add IPv6 support
+** TODO Add ECN support
+** TODO add depth and flows options
+
+* TODO ARED
+* TODO SFQRED and SFQARED
+* Documentation
+* Tests
+* DNS model
+* Cablelabs stuff
+* RRUL test emulation
+  isochronous voip streams
+  4 up 4 down tcp
+ 
