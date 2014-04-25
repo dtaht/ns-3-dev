@@ -503,6 +503,12 @@ PointToPointNetDevice::Send (
       if (m_txMachineState == READY)
         {
           packet = m_queue->Dequeue ();
+          if (packet == NULL)
+            {
+              // Dequeue may fail (head drop)
+              // can't trace this either
+              return false;
+            }
           m_snifferTrace (packet);
           m_promiscSnifferTrace (packet);
           return TransmitStart (packet);
