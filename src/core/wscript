@@ -299,6 +299,7 @@ def build(bld):
         'model/hash-fnv.h',
         'model/hash.h',
         'model/valgrind.h',
+        'model/linux-list.h',
         ]
 
     if sys.platform == 'win32':
