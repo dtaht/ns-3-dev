@@ -74,6 +74,11 @@ TypeId SfqQueue::GetTypeId (void)
                    UintegerValue (1500),
                    MakeUintegerAccessor (&SfqQueue::m_quantum),
                    MakeUintegerChecker<uint32_t> ())
+    .AddAttribute ("Flows",
+                   "Number of flows",
+                   UintegerValue (1024),
+                   MakeUintegerAccessor (&SfqQueue::m_divisor),
+                   MakeUintegerChecker<uint32_t> ())
     ;
   return tid;
 }
@@ -108,11 +113,12 @@ SfqQueue::hash(Ptr<Packet> p)
     {
       if (pcounter > m_perturbInterval)
         perturbation = psource.GetInteger(0,std::numeric_limits<std::size_t>::max());
-      std::size_t h = (string_hash((format("%x%x%d")
+      std::size_t h = (string_hash((format("%x%x%x%x")
                                     % (ip_hd.GetDestination().Get())
                                     % (ip_hd.GetSource().Get())
+                                    % (ip_hd.GetProtocol())
                                     % (perturbation)).str())
-                       & 0x2ff);
+                       % m_divisor );
       return h;
     }
   else
