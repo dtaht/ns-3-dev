@@ -64,10 +64,10 @@ TypeId SfqQueue::GetTypeId (void)
                    BooleanValue (false),
                    MakeBooleanAccessor (&SfqQueue::m_headmode),
                    MakeBooleanChecker ())
-    .AddAttribute ("perturbInterval",
+    .AddAttribute ("peturbInterval",
                    "Perturbation interval in packets",
                    UintegerValue (500),
-                   MakeUintegerAccessor (&SfqQueue::m_perturbInterval),
+                   MakeUintegerAccessor (&SfqQueue::m_peturbInterval),
                    MakeUintegerChecker<uint32_t> ())
     .AddAttribute ("Quantum",
                    "Quantum in bytes",
@@ -87,7 +87,7 @@ SfqQueue::SfqQueue () :
   m_ht (),
   m_flows(),
   psource (),
-  perturbation (psource.GetInteger(0,std::numeric_limits<std::size_t>::max()))
+  peturbation (psource.GetInteger(0,std::numeric_limits<std::size_t>::max()))
 {
   NS_LOG_FUNCTION_NOARGS ();
 }
@@ -111,13 +111,13 @@ SfqQueue::hash(Ptr<Packet> p)
   class Ipv4Header ip_hd;
   if (q->PeekHeader (ip_hd))
     {
-      if (pcounter > m_perturbInterval)
-        perturbation = psource.GetInteger(0,std::numeric_limits<std::size_t>::max());
+      if (pcounter > m_peturbInterval)
+        peturbation = psource.GetInteger(0,std::numeric_limits<std::size_t>::max());
       std::size_t h = (string_hash((format("%x%x%x%x")
                                     % (ip_hd.GetDestination().Get())
                                     % (ip_hd.GetSource().Get())
                                     % (ip_hd.GetProtocol())
-                                    % (perturbation)).str())
+                                    % (peturbation)).str())
                        % m_divisor );
       return h;
     }

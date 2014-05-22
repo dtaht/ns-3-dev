@@ -68,11 +68,11 @@ private:
   mutable std::list<Ptr<SfqSlot> > m_flows;
   uint32_t m_divisor;
   uint32_t m_buckets;
-  uint32_t m_perturbInterval;
+  uint32_t m_peturbInterval;
   bool m_headmode;
   mutable size_t pcounter;
   UniformVariable psource;
-  mutable uint32_t perturbation;
+  mutable uint32_t peturbation;
   uint32_t m_quantum;
 };
 
